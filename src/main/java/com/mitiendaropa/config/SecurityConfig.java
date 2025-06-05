@@ -45,6 +45,11 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/cart/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/cart/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/cart/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/cart/**").hasRole("ADMIN")
+                    .requestMatchers("/api/cart/**").permitAll()
                     .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider()) // <-- llamado al método correctamente

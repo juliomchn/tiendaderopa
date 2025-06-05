@@ -3,14 +3,15 @@ package com.mitiendaropa.service.impl;
 
 
 import com.mitiendaropa.dto.UserRegistrationDTO;
-import com.mitiendaropa.exception.ResourceNotFoundException;
 import com.mitiendaropa.model.Role;
 import com.mitiendaropa.model.User;
 import com.mitiendaropa.repository.RoleRepository;
 import com.mitiendaropa.repository.UserRepository;
 import com.mitiendaropa.service.UserService;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,17 +19,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service // Marca esta clase como un componente de servicio de Spring
+@Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository; // Inyectar RoleRepository
+    private final RoleRepository roleRepository;
 
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
@@ -78,7 +78,6 @@ public User registerUser(UserRegistrationDTO registrationDTO) {
         return userRepository.save(user);
     }
 
-    // Método requerido por UserDetailsService para cargar los detalles del usuario
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(usernameOrEmail)
@@ -93,6 +92,18 @@ public User registerUser(UserRegistrationDTO registrationDTO) {
                 .collect(Collectors.toList())
         );
     }
+
+    public User getCurrentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+        throw new RuntimeException("Usuario no autenticado");
+    }
+
+    String username = authentication.getName(); // El username fue puesto en el token
+    return userRepository.findByUsernameOrEmail(username, username)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+}
+
 
 
 }

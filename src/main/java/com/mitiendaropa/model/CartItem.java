@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
+@EqualsAndHashCode(exclude = {"cart", "product"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -32,7 +34,6 @@ public class CartItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    // Puedes guardar el precio del producto en el momento de añadirlo al carrito si es necesario
     @Column(nullable = false)
     private BigDecimal unitPrice;
 }

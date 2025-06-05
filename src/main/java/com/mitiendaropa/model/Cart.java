@@ -3,13 +3,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
+@EqualsAndHashCode(exclude = {"cartItems", "user"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -21,26 +22,13 @@ public class Cart {
     private Long id;
 
     // Relación OneToOne con User (un carrito por usuario)
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true) // La columna user_id será única
+    @ManyToOne(fetch = FetchType.LAZY) // Lazy loading es bueno para evitar cargas innecesarias
+    @JoinColumn(name = "user_id", nullable = false, unique = true) 
     private User user;
 
-    // Relación ManyToMany con Product a través de una tabla de unión 'cart_items'
-    // Esta es una forma sencilla. Para añadir cantidad, es mejor una entidad intermedia (CartItem)
-    @ManyToMany
-    @JoinTable(
-        name = "cart_products",
-        joinColumns = @JoinColumn(name = "cart_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<Product> products = new ArrayList<>();
-
-    // La forma más robusta es usar una entidad intermedia para los ítems del carrito (CartItem)
-    // Esto permite almacenar la cantidad de cada producto en el carrito.
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<CartItem> cartItems = new ArrayList<>(); // Inicializar para evitar NullPointerException
-
-    // Campos adicionales del carrito (opcional)
+    @Builder.Default
+    private Set<CartItem> cartItems = new HashSet<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

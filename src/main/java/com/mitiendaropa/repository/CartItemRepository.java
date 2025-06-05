@@ -1,12 +1,17 @@
 package com.mitiendaropa.repository;
 
 
+import com.mitiendaropa.model.Cart;
 import com.mitiendaropa.model.CartItem;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
-import java.util.List;
+import com.mitiendaropa.model.Product;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
-    Optional<CartItem> findByCartIdAndProductId(Long cartId, Long productId);
-    List<CartItem> findByCartId(Long cartId);
+    Optional<CartItem> findByCartAndProduct(Cart cart, Product product);
+    void deleteByCart(Cart cart);
 }
